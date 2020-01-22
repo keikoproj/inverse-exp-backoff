@@ -47,6 +47,6 @@ func main() {
 
 See full example on the Golang playground [here](https://play.golang.org/p/dQmFGQskrMm).
 
-In the above example, the NewIEBackoff function creates a new object that does inverse exponrntial backoff. It starts with an initial delay of 3 minutes. Every subsequent retry will be done by reducing the time interval by a factor of 0.5. So, the second retry will be done 1.5 minutes later, the third one 45 seconds later and so on. The minimum time interval will be 15 seconds and there will be a total of 20 retries. If the max retries (20 in the above example) are exceeded, the Next() method of the object will thrown an exception.
+In the above example, the NewIEBackoff function creates a new object that does inverse exponential backoff. It starts with an initial delay of 3 minutes. Every subsequent retry will be done by reducing the time interval by a factor of 0.5. So, the second retry will be done 1.5 minutes later, the third one 45 seconds later and so on. The minimum time interval will be 15 seconds and there will be a total of 20 retries. If the max retries (20 in the above example) are exceeded, the Next() method of the object will thrown an exception.
 
 
