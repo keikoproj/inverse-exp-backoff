@@ -47,6 +47,32 @@ func main() {
 
 See full example on the Golang playground [here](https://play.golang.org/p/dQmFGQskrMm).
 
-In the above example, the NewIEBackoff function creates a new object that does inverse exponential backoff. It starts with an initial delay of 3 minutes. Every subsequent retry will be done by reducing the time interval by a factor of 0.5. So, the second retry will be done 1.5 minutes later, the third one 45 seconds later and so on. The minimum time interval will be 15 seconds and there will be a total of 20 retries. If the max retries (20 in the above example) are exceeded, the Next() method of the object will thrown an exception.
+In the above example, the NewIEBackoff function creates a new object that does inverse exponential backoff. It starts with an initial delay of 3 minutes. Every subsequent retry will be done by reducing the time interval by a factor of 0.5. So, the second retry will be done 1.5 minutes later, the third one 45 seconds later and so on. The minimum time interval will be 15 seconds and there will be a total of 20 retries. If the max retries (20 in the above example) are exceeded, the Next() method of the object will throw an exception.
+
+Another variant of “inverse exponential backoff” is with a timeout. There may be cases where there is a timeout that is set and beyond which the calls are considered failed. In such cases we can use Inverse Exponential backoff with Timeout.
+
+![](inverse-exp-backoff-with-timeout.png)
+
+This inverse-exp-backoff-with-timeout is an extension of the above mentioned Inverse Exponential Backoff mechanism.
+
+### Example usage
+
+```
+import (
+	iebackoff "github.com/keikoproj/inverse-exp-backoff"
+)
+
+func main() {
+	for ietest, err = iebackoff.NewIEBWithTimeout(3*time.Minute, 15*time.Second, 5*time.Minute, 0.5, time.Now()); err == nil; err = ietest.Next() {
+		appErr := sampleFuncWithTimeout()
+		if appErr == nil {
+			break
+		}
+	}
+}
+```
+
+In the above example, the NewIEBWithTimeout function creates a new object that does inverse exponential backoff. It starts with an initial delay of 3 minutes. Every subsequent retry will be done by reducing the time interval by a factor of 0.5. So, the second retry will be done 1.5 minutes later, the third one 45 seconds later and so on. 
+The minimum time interval will be 15 seconds and if the next retry is less than the minimum interval it should be able to retry one last time before 1sec of timeout. After the timeout, the Next() method of the object will throw an exception.
 
 
