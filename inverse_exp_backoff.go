@@ -38,7 +38,7 @@ func NewIEBackoff(max time.Duration, min time.Duration, factor float64, maxRetri
 // is expected to return a golang error object.
 func (ieb *IEBackoff) Next() error {
 	// Confirm there are retries left.
-		if ieb.retries == 0 {
+	if ieb.retries == 0 {
 		return errors.New("no more retries left")
 	}
 
