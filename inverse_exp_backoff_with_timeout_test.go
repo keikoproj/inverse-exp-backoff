@@ -44,9 +44,10 @@ func TestIEBackoffWithTimeout(t *testing.T) {
 	// failure rate. sampleFunc is expected to fail 50% of the times. So, within
 	// 5 retries, at least one retry should succeed and the error returned should
 	// be nil
-	var ietest1 *IEBWithTimeout
+	var ietest1, ietest2 *IEBWithTimeout
+	var ietest3 *IEBWithTimeout
 	var err error
-	for ietest1, err = NewIEBWithTimeout(30*time.Second, 1*time.Second, 3*time.Minute, 0.5, time.Now()); err == nil; err = ietest1.Next() {
+	for ietest1, err = NewIEBWithTimeout(30*time.Second, 5*time.Second, 1*time.Minute, 0.5, time.Now()); err == nil; err = ietest1.Next() {
 		appErr := sampleFuncWithTimeout()
 		if appErr == nil {
 			break
@@ -55,8 +56,12 @@ func TestIEBackoffWithTimeout(t *testing.T) {
 	g.Expect(err).To(gomega.BeNil())
 
 	var err2 error
-	// This test goes through all the retries. ietest1.Next() should throw an error at the end.
-	for ietest1, err2 = NewIEBWithTimeout(4*time.Second, 1*time.Second, 8*time.Second, 0.4, time.Now()); err2 == nil; err2 = ietest1.Next() {
+	for ietest2, err2 = NewIEBWithTimeout(4*time.Second, 1*time.Second, 8*time.Second, 0.4, time.Now()); err2 == nil; err2 = ietest2.Next() {
 	}
 	g.Expect(err2).NotTo(gomega.BeNil())
+
+	var err3 error
+	for ietest3, err3 = NewIEBWithTimeout(5*time.Second, 1*time.Second, 7*time.Second, 0.65, time.Now()); err3 == nil; err3 = ietest3.Next() {
+	}
+	g.Expect(err3).NotTo(gomega.BeNil())
 }

@@ -22,7 +22,7 @@ type IEBWithTimeout struct {
 // NewIEBWithTimeout creates and returns a new IEBackoff object
 func NewIEBWithTimeout(max time.Duration, min time.Duration, timeout time.Duration, factor float64, startedAt time.Time) (*IEBWithTimeout, error) {
 	if factor >= 1.0 || factor <= 0.0 {
-		return nil, errors.New("Factor should be between 0 and 1")
+		return nil, errors.New("factor should be between 0 and 1")
 	}
 
 	ieb := IEBWithTimeout{
@@ -41,25 +41,28 @@ func NewIEBWithTimeout(max time.Duration, min time.Duration, timeout time.Durati
 // is expected to return a golang error object.
 func (ieb *IEBWithTimeout) Next() error {
 	// Confirm there are retries left.
-	if  time.Now().Sub(ieb.startedAt) > ieb.timeout {
-		return errors.New("No more retries left")
+	leftSec := float64((ieb.timeout - time.Now().Sub(ieb.startedAt)).Nanoseconds())
+	if leftSec <= 0 || ieb.nextDelay == 0 {
+		return errors.New("no more retries left")
 	}
-
-	// Actually sleep for the given delay.
 	time.Sleep(time.Duration(ieb.nextDelay))
-
-	// Calculate the delay for the next iteration.
+	leftSec2 := leftSec - ieb.nextDelay
 	minNano := float64(ieb.min.Nanoseconds())
 	newBackoffTime := ieb.nextDelay * ieb.factor
-	if newBackoffTime > minNano {
+
+	if newBackoffTime > minNano && leftSec2 > newBackoffTime {
 		ieb.nextDelay = newBackoffTime
-	} else {
-		// if the newBackoffTime > minNano we should be able to do a retry one last time before 1sec of timeout.
-		lastRetry := float64((time.Now().Sub(ieb.startedAt) - ieb.timeout).Nanoseconds())
-		if lastRetry <= minNano {
-			ieb.nextDelay = lastRetry - 1
+	} else if newBackoffTime > minNano && leftSec2 < newBackoffTime {
+		ieb.nextDelay = leftSec2 - float64(1*time.Second.Nanoseconds())
+	} else if newBackoffTime < minNano && leftSec2 - minNano > 1 {
+		ieb.nextDelay = minNano
+	} else if newBackoffTime < minNano && leftSec2 - minNano < minNano && leftSec2 > 1 {
+		// if the newBackoffTime < minNano and leftSec-minNano < minNano and leftSec> 1 sec we should be able to do a retry one last time before 1sec of timeout.
+		ieb.nextDelay = leftSec2 - float64(1*time.Second.Nanoseconds())
+		if ieb.nextDelay < 0{
+			ieb.nextDelay = 0
 		}
 	}
 
-	return nil
+return nil
 }
