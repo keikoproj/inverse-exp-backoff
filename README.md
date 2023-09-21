@@ -1,6 +1,10 @@
 # Inverse Exponential Backoff
 
-> Golang library for inverse exponential backoff.
+[![Go Report Card][GoReportImg]][GoReportUrl]
+[![Build Status][BuildStatusImg]][BuildMasterUrl]
+[![codecov][CodecovImg]][CodecovUrl]
+
+Golang library for inverse exponential backoff.
 
 ## What is it?
 
@@ -76,3 +80,12 @@ In the above example, the NewIEBWithTimeout function creates a new object that d
 The minimum time interval will be 15 seconds and if the next retry is less than the minimum interval it should be able to retry one last time before 1sec of timeout. After the timeout, the Next() method of the object will throw an exception.
 
 
+<!-- Markdown link -->
+[GoReportImg]: https://goreportcard.com/badge/github.com/keikoproj/inverse-exp-backoff
+[GoReportUrl]: https://goreportcard.com/report/github.com/keikoproj/inverse-exp-backoff
+
+[BuildStatusImg]: https://github.com/keikoproj/inverse-exp-backoff/actions/workflows/unit-test.yaml/badge.svg?branch=master
+[BuildMasterUrl]: https://github.com/keikoproj/inverse-exp-backoff/actions/workflows/unit-test.yaml
+
+[CodecovImg]: https://codecov.io/gh/keikoproj/inverse-exp-backoff/branch/master/graph/badge.svg
+[CodecovUrl]: https://codecov.io/gh/keikoproj/inverse-exp-backoff
