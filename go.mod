@@ -2,7 +2,7 @@ module github.com/keikoproj/inverse-exp-backoff
 
 go 1.19
 
-require github.com/onsi/gomega v1.28.1
+require github.com/onsi/gomega v1.30.0
 
 require (
 	github.com/google/go-cmp v0.6.0 // indirect
