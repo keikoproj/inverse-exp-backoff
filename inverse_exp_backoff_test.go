@@ -25,6 +25,41 @@ func TestFactor(t *testing.T) {
 	g.Expect(err).To(gomega.BeNil())
 }
 
+// TestInvalidInputs tests that the IEBackoff constructor properly handles invalid inputs
+func TestInvalidInputs(t *testing.T) {
+	g := gomega.NewGomegaWithT(t)
+
+	// Test negative max duration
+	_, err := NewIEBackoff(-5*time.Second, 1*time.Second, 0.5, 10)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("negative duration"))
+
+	// Test negative min duration
+	_, err = NewIEBackoff(5*time.Second, -1*time.Second, 0.5, 10)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("negative duration"))
+
+	// Test zero max duration
+	_, err = NewIEBackoff(0, 1*time.Second, 0.5, 10)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("max duration should be greater than zero"))
+
+	// Test zero min duration
+	_, err = NewIEBackoff(5*time.Second, 0, 0.5, 10)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("min duration should be greater than zero"))
+
+	// Test min greater than max
+	_, err = NewIEBackoff(1*time.Second, 5*time.Second, 0.5, 10)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("min duration should be less than or equal to max duration"))
+
+	// Test zero retries
+	_, err = NewIEBackoff(5*time.Second, 1*time.Second, 0.5, 0)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("number of retries should be greater than zero"))
+}
+
 func sampleFunc() error {
 	fmt.Println(time.Now().String())
 	var src = rand.NewSource(time.Now().UnixNano())

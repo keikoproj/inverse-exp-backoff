@@ -23,6 +23,26 @@ func NewIEBackoff(max time.Duration, min time.Duration, factor float64, maxRetri
 		return nil, errors.New("Factor should be between 0 and 1")
 	}
 
+	if max < 0 || min < 0 {
+		return nil, errors.New("negative duration not allowed")
+	}
+
+	if max == 0 {
+		return nil, errors.New("max duration should be greater than zero")
+	}
+
+	if min == 0 {
+		return nil, errors.New("min duration should be greater than zero")
+	}
+
+	if min > max {
+		return nil, errors.New("min duration should be less than or equal to max duration")
+	}
+
+	if maxRetries == 0 {
+		return nil, errors.New("number of retries should be greater than zero")
+	}
+
 	ieb := IEBackoff{
 		max:       max,
 		min:       min,

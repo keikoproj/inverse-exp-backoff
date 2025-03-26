@@ -25,6 +25,30 @@ func NewIEBWithTimeout(max time.Duration, min time.Duration, timeout time.Durati
 		return nil, errors.New("factor should be between 0 and 1")
 	}
 
+	if max < 0 || min < 0 || timeout < 0 {
+		return nil, errors.New("negative duration not allowed")
+	}
+
+	if max == 0 {
+		return nil, errors.New("max duration should be greater than zero")
+	}
+
+	if min == 0 {
+		return nil, errors.New("min duration should be greater than zero")
+	}
+
+	if min > max {
+		return nil, errors.New("min duration should be less than or equal to max duration")
+	}
+
+	if timeout == 0 {
+		return nil, errors.New("timeout duration should be greater than zero")
+	}
+
+	if startedAt.IsZero() {
+		return nil, errors.New("start time should not be zero")
+	}
+
 	ieb := IEBWithTimeout{
 		max:       max,
 		min:       min,
@@ -64,5 +88,5 @@ func (ieb *IEBWithTimeout) Next() error {
 		}
 	}
 
-return nil
+	return nil
 }
