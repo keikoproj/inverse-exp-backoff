@@ -26,6 +26,53 @@ func TestFactorWithTimeout(t *testing.T) {
 	g.Expect(err).To(gomega.BeNil())
 }
 
+// TestInvalidInputsWithTimeout tests that the IEBWithTimeout constructor properly handles invalid inputs
+func TestInvalidInputsWithTimeout(t *testing.T) {
+	g := gomega.NewGomegaWithT(t)
+	now := time.Now()
+
+	// Test negative max duration
+	_, err := NewIEBWithTimeout(-5*time.Second, 1*time.Second, 10*time.Second, 0.5, now)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("negative duration"))
+
+	// Test negative min duration
+	_, err = NewIEBWithTimeout(5*time.Second, -1*time.Second, 10*time.Second, 0.5, now)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("negative duration"))
+
+	// Test negative timeout duration
+	_, err = NewIEBWithTimeout(5*time.Second, 1*time.Second, -10*time.Second, 0.5, now)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("negative duration"))
+
+	// Test zero max duration
+	_, err = NewIEBWithTimeout(0, 1*time.Second, 10*time.Second, 0.5, now)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("max duration should be greater than zero"))
+
+	// Test zero min duration
+	_, err = NewIEBWithTimeout(5*time.Second, 0, 10*time.Second, 0.5, now)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("min duration should be greater than zero"))
+
+	// Test zero timeout duration
+	_, err = NewIEBWithTimeout(5*time.Second, 1*time.Second, 0, 0.5, now)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("timeout duration should be greater than zero"))
+
+	// Test min greater than max
+	_, err = NewIEBWithTimeout(1*time.Second, 5*time.Second, 10*time.Second, 0.5, now)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("min duration should be less than or equal to max duration"))
+
+	// Test zero time
+	var zeroTime time.Time
+	_, err = NewIEBWithTimeout(5*time.Second, 1*time.Second, 10*time.Second, 0.5, zeroTime)
+	g.Expect(err).NotTo(gomega.BeNil())
+	g.Expect(err.Error()).To(gomega.ContainSubstring("start time should not be zero"))
+}
+
 func sampleFuncWithTimeout() error {
 	fmt.Println(time.Now().String())
 	var src = rand.NewSource(time.Now().UnixNano())
